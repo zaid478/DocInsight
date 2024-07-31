@@ -1,0 +1,11 @@
+# Ignore PDF files
+*.pdf
+
+# Ignore DOCX files
+*.docx
+
+# Ignore books directory
+books/
+
+# Ignore Python bytecode files
+*.pyc
