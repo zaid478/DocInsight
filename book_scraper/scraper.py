@@ -79,10 +79,7 @@ def scrape_page(book_id, page_number, current_file_index, li_texts):
 
         logger.warning("Text div not found on page %d.", page_number)
         return None, None, None
-    elif response.status_code == 404:
-        logger.warning("Page %d not found.", page_number)
-        return None, None, None
-
+    
     logger.error("Failed to retrieve page %d .", page_number)
     return None, None, None
 
