@@ -4,7 +4,6 @@ The text is extracted from specific HTML elements and cleaned of certain charact
 """
 
 import re
-import time
 import logging
 import requests
 from bs4 import BeautifulSoup
@@ -36,7 +35,7 @@ def extract_text_with_spans(p_tag):
                 formatted_text.append(normal_text)
     return ''.join(formatted_text)
 
-def scrape_page(book_id, page_number, current_file_index, li_texts, retries=3):
+def scrape_page(book_id, page_number, current_file_index, li_texts):
     """
     Scrapes a specific page of a book and processes the text.
 
@@ -52,44 +51,39 @@ def scrape_page(book_id, page_number, current_file_index, li_texts, retries=3):
     """
     url = f"{BASE_URL}/{book_id}/{page_number}"
 
-    for attempt in range(retries):
-        try:
-            response = requests.get(url, timeout=10)
-            response.raise_for_status()
+    response = requests.get(url, timeout=10)
+    response.raise_for_status()
 
-            if response.status_code == 200:
-                soup = BeautifulSoup(response.content, "html.parser")
-                text_div = soup.find("div", class_="nass margin-top-10")
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, "html.parser")
+        text_div = soup.find("div", class_="nass margin-top-10")
 
-                if text_div:
-                    paragraphs = text_div.find_all("p")
-                    formatted_text = []
-                    chunk_len = 0
+        if text_div:
+            paragraphs = text_div.find_all("p")
+            formatted_text = []
+            chunk_len = 0
 
-                    for p in paragraphs:
-                        text_with_spans = extract_text_with_spans(p)
-                        text_with_spans = remove_tashkeel(text_with_spans)
+            for p in paragraphs:
+                text_with_spans = extract_text_with_spans(p)
+                text_with_spans = remove_tashkeel(text_with_spans)
 
-                        if text_with_spans == f'"{clean_text(li_texts[current_file_index])}"':
-                            current_file_index += 1
-                            chunk_len = len(formatted_text)
-                            logger.info("Match found: %s vs %s", text_with_spans,
-                                        f'"{clean_text(li_texts[current_file_index])}"')
+                if text_with_spans == f'"{clean_text(li_texts[current_file_index])}"':
+                    current_file_index += 1
+                    chunk_len = len(formatted_text)
+                    logger.info("Match found: %s vs %s", text_with_spans,
+                                f'"{clean_text(li_texts[current_file_index])}"')
 
-                        formatted_text.append(text_with_spans)
+                formatted_text.append(text_with_spans)
 
-                    return formatted_text, current_file_index, chunk_len
-                else:
-                    logger.warning("Text div not found on page %d.", page_number)
-                    return None, None, None
-            elif response.status_code == 404:
-                logger.warning("Page %d not found.", page_number)
-                return None, None, None
-        except requests.RequestException as e:
-            logger.error("Attempt %d failed: %s", attempt + 1, e)
-            time.sleep(2)
+            return formatted_text, current_file_index, chunk_len
 
-    logger.error("Failed to retrieve page %d after %d attempts.", page_number, retries)
+        logger.warning("Text div not found on page %d.", page_number)
+        return None, None, None
+    elif response.status_code == 404:
+        logger.warning("Page %d not found.", page_number)
+        return None, None, None
+
+    logger.error("Failed to retrieve page %d .", page_number)
     return None, None, None
 
 def extract_li_text(soup):

@@ -3,5 +3,6 @@ requests==2.31.0
 pdfkit==1.0.0
 python-docx==0.8.11
 fpdf
-langchain
+langchain==0.1.14
 streamlit
+python-dotenv
