@@ -1,4 +1,10 @@
-css = '''
+"""
+This module defines CSS styles and HTML templates for displaying chat messages
+in a user interface. It includes separate templates for user and bot messages,
+as well as styles for formatting the chat messages.
+"""
+
+CSS = '''
 <style>
 .chat-message {
     padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1rem; display: flex
@@ -23,9 +29,10 @@ css = '''
   padding: 0 1.5rem;
   color: #fff;
 }
+</style>
 '''
 
-bot_template = '''
+BOT_TEMPLATE = '''
 <div class="chat-message bot">
     <div class="avatar">
         <img src="https://i.ibb.co/SthNWZJ/baasha.jpg" style="max-height: 80px; max-width: 80px; border="20" >
@@ -34,7 +41,7 @@ bot_template = '''
 </div>
 '''
 
-user_template = '''
+USER_TEMPLATE = '''
 <div class="chat-message user">
     <div class="avatar">
         <img src="https://i.ibb.co/wcKX2x1/human.jpg" style="max-height: 100px; max-width: 80px; border="20" >
