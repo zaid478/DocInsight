@@ -33,7 +33,7 @@ def start_conversation(vector_embeddings):
 
 #creating prompt template using langchain
 def load_prompt():
-        prompt = """ You need to answer the question from the pdf content. Make it as detailed as possible. Try to put every bit of detail from the book in your answer. 
+        prompt = """You are an expert in arabic language and Islamic jurispudence. You need to answer the question from the pdf. Make it as detailed as possible. Try to put every bit of detail from the book in your answer. Do not put any thing which is irrelevant to the query.
         Given below is the context and question of the user.
         context = {context}
         question = {question}
@@ -63,7 +63,7 @@ def format_docs(docs):
 
 
 def main():
-        sl.header("welcome to the 📝PDF bot")
+        sl.header("مساعد الوثائق -- Document Assistant")
         sl.write("🤖 You can chat by Entering your queries ")
         knowledgeBase=load_knowledgeBase()
         llm=load_llm()
@@ -74,7 +74,7 @@ def main():
         
         if(query):
                 #getting only the chunks that are similar to the query for llm to produce the output
-                similar_embeddings=knowledgeBase.similarity_search(query)
+                similar_embeddings=knowledgeBase.similarity_search(query,k=50)
                 similar_embeddings=FAISS.from_documents(documents=similar_embeddings, embedding=OpenAIEmbeddings())
                 
                 #creating the chain for integrating llm,prompt,stroutputparser
