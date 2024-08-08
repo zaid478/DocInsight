@@ -10,25 +10,24 @@ from langchain_community.document_loaders import PyPDFLoader  # pylint: disable=
 from models import get_embeddings_model
 from vector_stores import get_vector_store
 from text_processing import process_documents
+import config as cfg
 
 load_dotenv()
 
-def create_chunks_embeddings(books_directory, file_type, chunk_size, chunk_overlap,
-                             embedding_model, model_type, vector_store, handle_metadata=False):
+def create_chunks_embeddings():
     """
     Processes files in the given directory, splits the text into chunks, generates embeddings,
-    and creates a vector store index.
-
-    Parameters:
-        books_directory (str): The directory containing text or PDF files.
-        file_type (str): The type of files ('pdf' or 'txt').
-        chunk_size (int): The size of each chunk.
-        chunk_overlap (int): The overlap between chunks.
-        embedding_model (str): The name of the embedding model.
-        model_type (str): The type of embedding model ('openai' or 'huggingface').
-        vector_store (str): The name of the vector store.
-        handle_metadata (bool): Whether to handle metadata or not.
+    and creates a vector store index using configuration from config.py.
     """
+    books_directory = cfg.BOOKS_DIRECTORY
+    file_type = cfg.FILE_TYPE
+    chunk_size = cfg.CHUNK_SIZE
+    chunk_overlap = cfg.CHUNK_OVERLAP
+    embedding_model = cfg.EMBEDDING_MODEL
+    model_type = cfg.MODEL_TYPE
+    vector_store = cfg.VECTOR_STORE
+    handle_metadata = cfg.HANDLE_METADATA
+
     if file_type == 'pdf':
         files = [f for f in os.listdir(books_directory) if f.lower().endswith('.pdf')]
         loader_class = PyPDFLoader
@@ -65,13 +64,4 @@ def create_chunks_embeddings(books_directory, file_type, chunk_size, chunk_overl
     vector_store_index.save_local(f"{last_folder_name}_{vector_store}_index_books")
 
 if __name__ == "__main__":
-    create_chunks_embeddings(
-        books_directory="../book_scraper/books/8183",
-        file_type="txt",  # Options: "pdf", "txt"
-        chunk_size=1000,
-        chunk_overlap=200,
-        embedding_model="ARABIC_TRIPLET_MATRYOSHKA",  # Options: from OpenAI/Hugging Face enum
-        model_type="huggingface",  # Options: "openai", "huggingface"
-        vector_store="faiss",  # Options: "faiss", "chroma", "weaviate"
-        handle_metadata=True  # Set to True to handle metadata
-    )
+    create_chunks_embeddings()

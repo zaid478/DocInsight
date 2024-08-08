@@ -1,7 +1,7 @@
 """
 This module contains classes and functions for loading and representing text documents.
 """
-
+# pylint: disable=too-few-public-methods
 class SimpleTextDocument:
     """
     A class to represent a text document.
