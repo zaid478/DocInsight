@@ -23,9 +23,8 @@ def get_vector_store(store_name, documents, embeddings_model):
     """
     if store_name == "faiss":
         return FAISS.from_documents(documents, embeddings_model)
-    elif store_name == "chroma":
+    if store_name == "chroma":
         return Chroma.from_documents(documents, embeddings_model)
-    elif store_name == "weaviate":
+    if store_name == "weaviate":
         return Weaviate.from_documents(documents, embeddings_model)
-    else:
-        raise ValueError(f"Unsupported vector store: {store_name}")
+    raise ValueError(f"Unsupported vector store: {store_name}")

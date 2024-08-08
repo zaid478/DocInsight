@@ -7,3 +7,5 @@ langchain==0.1.14
 streamlit
 python-dotenv
 langchain_openai
+sentence-transformers
+transformers

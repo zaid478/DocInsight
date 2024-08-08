@@ -1,0 +1,7 @@
+repos:
+  - repo: https://github.com/pre-commit/mirrors-pylint
+    rev: v3.0.0a5  # Use the latest version available
+    hooks:
+      - id: pylint
+        additional_dependencies:
+          - pylint==3.0.0a5  # Use the same version as above

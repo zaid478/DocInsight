@@ -2,7 +2,7 @@
 This module defines various embedding models and provides functionality to retrieve 
 the appropriate model based on the specified type and name.
 """
-
+# pylint: disable=too-few-public-methods
 from enum import Enum
 from sentence_transformers import SentenceTransformer
 from langchain_openai import OpenAIEmbeddings
@@ -67,9 +67,8 @@ def get_embeddings_model(model_name, model_type):
         if not any(model_name == member.name for member in HuggingFaceModels):
             raise ValueError(f"Invalid Hugging Face model name: {model_name}")
         return CustomArabicEmbeddings(HuggingFaceModels[model_name].value)
-    elif model_type == "openai":
+    if model_type == "openai":
         if not any(model_name == member.name for member in OpenAIModels):
             raise ValueError(f"Invalid OpenAI model name: {model_name}")
         return OpenAIEmbeddings(model=OpenAIModels[model_name].value)
-    else:
-        raise ValueError(f"Unsupported model type: {model_type}")
+    raise ValueError(f"Unsupported model type: {model_type}")
