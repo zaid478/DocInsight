@@ -1,4 +1,3 @@
-```markdown
 # Document Processing and Vector Store Creation
 
 ## Overview
@@ -72,8 +71,3 @@ Handles creation and management of vector stores.
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request with improvements.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-```
