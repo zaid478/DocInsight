@@ -9,3 +9,5 @@ books/
 
 # Ignore Python bytecode files
 *.pyc
+
+.env

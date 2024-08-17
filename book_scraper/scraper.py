@@ -4,14 +4,35 @@ The text is extracted from specific HTML elements and cleaned of certain charact
 """
 
 import re
+import time
 import logging
 import requests
+from functools import wraps
 from bs4 import BeautifulSoup
 from config import BASE_URL
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+def retry(max_attempts=5, delay=2):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            attempts = 0
+            while attempts < max_attempts:
+                try:
+                    return func(*args, **kwargs)
+                except requests.RequestException as e:
+                    attempts += 1
+                    logger.error("Attempt %d/%d failed: %s", attempts, max_attempts, e)
+                    if attempts < max_attempts:
+                        time.sleep(delay)
+                    else:
+                        logger.error("All %d attempts failed.", max_attempts)
+                        raise
+        return wrapper
+    return decorator
 
 def extract_text_with_spans(p_tag):
     """
@@ -35,6 +56,7 @@ def extract_text_with_spans(p_tag):
                 formatted_text.append(normal_text)
     return ''.join(formatted_text)
 
+@retry(max_attempts=5, delay=2)
 def scrape_page(book_id, page_number, current_file_index, li_texts):
     """
     Scrapes a specific page of a book and processes the text.
