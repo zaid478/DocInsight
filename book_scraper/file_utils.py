@@ -8,6 +8,7 @@ This module provides functions for creating directories, saving text in differen
 import os
 import logging
 from docx import Document
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 from fpdf import FPDF
 from config import BOOKS_DIRECTORY
 
@@ -97,7 +98,11 @@ def save_as_docx(file_path, text):
     """
     try:
         doc = Document()
-        doc.add_paragraph(text)
+        paragraph = doc.add_paragraph(text)
+
+        # Right-align the text
+        paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+
         doc.save(file_path)
         logger.info("DOCX saved: %s", file_path)
     except Exception as e:  # pylint: disable=broad-except
