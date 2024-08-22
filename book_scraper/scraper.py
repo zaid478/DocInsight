@@ -6,8 +6,8 @@ The text is extracted from specific HTML elements and cleaned of certain charact
 import re
 import time
 import logging
-import requests
 from functools import wraps
+import requests
 from bs4 import BeautifulSoup
 from config import BASE_URL
 
@@ -16,6 +16,19 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 def retry(max_attempts=5, delay=2):
+    """
+    Decorator to retry a function call if a requests.RequestException is raised.
+
+    Parameters:
+        max_attempts (int): Maximum number of retry attempts (default is 5).
+        delay (int): Delay between attempts in seconds (default is 2).
+
+    Returns:
+        function: A wrapper function that retries the decorated function on failure.
+
+    Raises:
+        requests.RequestException: Reraise the exception if all retry attempts fail.
+    """
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -63,12 +76,11 @@ def scrape_page(book_id, page_number, current_file_index, li_texts):
             formatted_text = []
             chunk_len = 0
 
-            
             for p in paragraphs:
                 para = []
                 for element in p.contents:
                     text = remove_tashkeel(element.get_text(strip=True))
-                        
+
                     if element.name == 'span':
                         if text:
                             if text == f'{clean_text(li_texts[current_file_index])}':
@@ -76,7 +88,7 @@ def scrape_page(book_id, page_number, current_file_index, li_texts):
                                 logger.info("Match found: %s vs %s", text,
                                             f'"{clean_text(li_texts[current_file_index])}"')
                                 current_file_index += 1
-                                
+
                             para.append(f'"{text}"')
                     else:
                         text = remove_tashkeel(element.get_text(strip=True))

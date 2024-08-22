@@ -8,7 +8,7 @@ This module provides functions for creating directories, saving text in differen
 import os
 import logging
 from docx import Document
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.text import WD_ALIGN_PARAGRAPH # pylint: disable=no-name-in-module
 from fpdf import FPDF
 from config import BOOKS_DIRECTORY
 
