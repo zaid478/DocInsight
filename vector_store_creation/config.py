@@ -6,8 +6,8 @@ generating embeddings, and creating vector stores.
 # Directory containing text or PDF files
 BOOKS_DIRECTORY = "../book_scraper/books/8183"
 
-# File type to process ('pdf' or 'txt')
-FILE_TYPE = "txt"
+# File type to process ('pdf' or 'txt' 'or 'docx')
+FILE_TYPE = "docx"
 
 # Size of each chunk
 CHUNK_SIZE = 1000
@@ -16,7 +16,7 @@ CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 200
 
 # Embedding model to use
-EMBEDDING_MODEL = "ARABIC_TRIPLET_MATRYOSHKA"
+EMBEDDING_MODEL = "GTR_T5_LARGE"
 
 # Type of embedding model ('openai' or 'huggingface')
 MODEL_TYPE = "huggingface"
