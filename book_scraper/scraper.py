@@ -34,28 +34,6 @@ def retry(max_attempts=5, delay=2):
         return wrapper
     return decorator
 
-def extract_text_with_spans(p_tag):
-    """
-    Extracts text from <span> tags within a <p> tag and formats it.
-
-    Parameters:
-        p_tag (Tag): A BeautifulSoup Tag object representing a <p> tag.
-
-    Returns:
-        str: Formatted text with spans and normal text combined.
-    """
-    formatted_text = []
-    for element in p_tag.contents:
-        if element.name == 'span':
-            span_text = element.get_text(strip=True)
-            if span_text:
-                formatted_text.append(f'"{span_text}"')
-        else:
-            normal_text = element.get_text(strip=True)
-            if normal_text:
-                formatted_text.append(normal_text)
-    return ''.join(formatted_text)
-
 @retry(max_attempts=5, delay=2)
 def scrape_page(book_id, page_number, current_file_index, li_texts):
     """
@@ -85,17 +63,26 @@ def scrape_page(book_id, page_number, current_file_index, li_texts):
             formatted_text = []
             chunk_len = 0
 
+            
             for p in paragraphs:
-                text_with_spans = extract_text_with_spans(p)
-                text_with_spans = remove_tashkeel(text_with_spans)
-
-                if text_with_spans == f'"{clean_text(li_texts[current_file_index])}"':
-                    current_file_index += 1
-                    chunk_len = len(formatted_text)
-                    logger.info("Match found: %s vs %s", text_with_spans,
-                                f'"{clean_text(li_texts[current_file_index])}"')
-
-                formatted_text.append(text_with_spans)
+                para = []
+                for element in p.contents:
+                    text = remove_tashkeel(element.get_text(strip=True))
+                        
+                    if element.name == 'span':
+                        if text:
+                            if text == f'{clean_text(li_texts[current_file_index])}':
+                                chunk_len = len(formatted_text)
+                                logger.info("Match found: %s vs %s", text,
+                                            f'"{clean_text(li_texts[current_file_index])}"')
+                                current_file_index += 1
+                                
+                            para.append(f'"{text}"')
+                    else:
+                        text = remove_tashkeel(element.get_text(strip=True))
+                        if text:
+                            para.append(text)
+                formatted_text.append(" ".join(para))
 
             return formatted_text, current_file_index, chunk_len
 
