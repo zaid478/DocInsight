@@ -6,6 +6,12 @@
 
 # Ignore books directory
 books/
+embeddings/
 
 # Ignore Python bytecode files
 *.pyc
+
+.env
+
+*.faiss
+*.pkl

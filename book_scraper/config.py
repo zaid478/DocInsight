@@ -15,7 +15,7 @@ BOOK_ID = 8183
 BASE_URL = "https://shamela.ws/book"
 
 # Format settings
-FILE_FORMAT = 'txt'  # Options: 'txt', 'docx', 'pdf'
+FILE_FORMAT = 'docx'  # Options: 'txt', 'docx', 'pdf'
 SUPPORTED_FORMATS = ['txt', 'docx']
 
 # Page and retry settings

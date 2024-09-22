@@ -4,7 +4,9 @@ The text is extracted from specific HTML elements and cleaned of certain charact
 """
 
 import re
+import time
 import logging
+from functools import wraps
 import requests
 from bs4 import BeautifulSoup
 from config import BASE_URL
@@ -13,28 +15,39 @@ from config import BASE_URL
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def extract_text_with_spans(p_tag):
+def retry(max_attempts=5, delay=2):
     """
-    Extracts text from <span> tags within a <p> tag and formats it.
+    Decorator to retry a function call if a requests.RequestException is raised.
 
     Parameters:
-        p_tag (Tag): A BeautifulSoup Tag object representing a <p> tag.
+        max_attempts (int): Maximum number of retry attempts (default is 5).
+        delay (int): Delay between attempts in seconds (default is 2).
 
     Returns:
-        str: Formatted text with spans and normal text combined.
-    """
-    formatted_text = []
-    for element in p_tag.contents:
-        if element.name == 'span':
-            span_text = element.get_text(strip=True)
-            if span_text:
-                formatted_text.append(f'"{span_text}"')
-        else:
-            normal_text = element.get_text(strip=True)
-            if normal_text:
-                formatted_text.append(normal_text)
-    return ''.join(formatted_text)
+        function: A wrapper function that retries the decorated function on failure.
 
+    Raises:
+        requests.RequestException: Reraise the exception if all retry attempts fail.
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            attempts = 0
+            while attempts < max_attempts:
+                try:
+                    return func(*args, **kwargs)
+                except requests.RequestException as e:
+                    attempts += 1
+                    logger.error("Attempt %d/%d failed: %s", attempts, max_attempts, e)
+                    if attempts < max_attempts:
+                        time.sleep(delay)
+                    else:
+                        logger.error("All %d attempts failed.", max_attempts)
+                        raise
+        return wrapper
+    return decorator
+
+@retry(max_attempts=5, delay=2)
 def scrape_page(book_id, page_number, current_file_index, li_texts):
     """
     Scrapes a specific page of a book and processes the text.
@@ -64,16 +77,24 @@ def scrape_page(book_id, page_number, current_file_index, li_texts):
             chunk_len = 0
 
             for p in paragraphs:
-                text_with_spans = extract_text_with_spans(p)
-                text_with_spans = remove_tashkeel(text_with_spans)
+                para = []
+                for element in p.contents:
+                    text = remove_tashkeel(element.get_text(strip=True))
 
-                if text_with_spans == f'"{clean_text(li_texts[current_file_index])}"':
-                    current_file_index += 1
-                    chunk_len = len(formatted_text)
-                    logger.info("Match found: %s vs %s", text_with_spans,
-                                f'"{clean_text(li_texts[current_file_index])}"')
+                    if element.name == 'span':
+                        if text:
+                            if text == f'{clean_text(li_texts[current_file_index])}':
+                                chunk_len = len(formatted_text)
+                                logger.info("Match found: %s vs %s", text,
+                                            f'"{clean_text(li_texts[current_file_index])}"')
+                                current_file_index += 1
 
-                formatted_text.append(text_with_spans)
+                            para.append(f'"{text}"')
+                    else:
+                        text = remove_tashkeel(element.get_text(strip=True))
+                        if text:
+                            para.append(text)
+                formatted_text.append(" ".join(para))
 
             return formatted_text, current_file_index, chunk_len
 

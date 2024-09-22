@@ -5,7 +5,7 @@ generating embeddings, and creating a vector store index for document retrieval.
 
 import os
 from dotenv import load_dotenv
-from document_loaders import SimpleTextLoader
+from document_loaders import SimpleTextLoader, DocxLoader
 from langchain_community.document_loaders import PyPDFLoader  # pylint: disable=no-name-in-module
 from models import get_embeddings_model
 from vector_stores import get_vector_store
@@ -34,6 +34,9 @@ def create_chunks_embeddings():
     elif file_type == 'txt':
         files = [f for f in os.listdir(books_directory) if f.lower().endswith('.txt')]
         loader_class = SimpleTextLoader
+    elif file_type == 'docx':
+        files = [f for f in os.listdir(books_directory) if f.lower().endswith('.docx')]
+        loader_class = DocxLoader
     else:
         raise ValueError("Unsupported file type. Choose 'pdf' or 'txt'.")
 
@@ -61,7 +64,7 @@ def create_chunks_embeddings():
     embeddings_model = get_embeddings_model(embedding_model, model_type)
     vector_store_index = get_vector_store(vector_store, chunked_documents, embeddings_model)
     last_folder_name = os.path.basename(os.path.normpath(books_directory))
-    vector_store_index.save_local(f"{last_folder_name}_{vector_store}_index_books")
+    vector_store_index.save_local(f"embdeddings/{last_folder_name}_{embedding_model}_{vector_store}")
 
 if __name__ == "__main__":
     create_chunks_embeddings()

@@ -1,6 +1,9 @@
 """
 This module contains classes and functions for loading and representing text documents.
 """
+
+from docx import Document as DocxDocument
+
 # pylint: disable=too-few-public-methods
 class SimpleTextDocument:
     """
@@ -21,6 +24,35 @@ class SimpleTextDocument:
         """
         self.page_content = text
         self.metadata = metadata or {}
+
+
+class DocxLoader:
+    """
+    A loader class for .docx files.
+    """
+    def __init__(self, file_path):
+        """
+        Initializes a DocxLoader instance.
+
+        Parameters:
+            file_path (str): The path to the .docx file to be loaded.
+        """
+        self.file_path = file_path
+
+    def load(self):
+        """
+        Loads the .docx file and extracts text.
+
+        Returns:
+            list: A list containing a single SimpleTextDocument instance with the 
+            content of the .docx file.
+        """
+        doc = DocxDocument(self.file_path)
+        text = []
+        for para in doc.paragraphs:
+            text.append(para.text)
+        full_text = "\n".join(text)
+        return [SimpleTextDocument(full_text)]
 
 class SimpleTextLoader:
     """
